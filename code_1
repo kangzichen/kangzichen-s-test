@@ -1,0 +1,75 @@
+class CharNode {
+public:
+    int count;
+    CharNode* child[26];
+    CharNode(int cnt = 0) : count(cnt) {
+        for (int i = 0; i<26; i++) {
+            child[i] = NULL;
+        }
+    }
+};
+
+class WordDictionary {
+private:
+    CharNode root;
+    void add(const string& str) {
+        CharNode* current = &root;
+        int pos = 0;
+        int len = str.size();
+        char ch;
+        while (pos < len) {
+            ch = str[pos] - 'a';
+            if (current->child[ch] == NULL) {
+                current->child[ch] = new CharNode();
+            }
+            if (pos == len - 1) {
+                current->child[ch]->count++;
+            }
+            current = current->child[ch];
+            pos++;
+        }
+    }
+    
+    bool dfs_search(CharNode* at, string& word, int pos) {
+        if (at == NULL) {
+            return false;
+        }
+        int len = word.size();
+        if (len == pos && at != NULL && at->count > 0) {
+            return true;
+        } else if (pos >= len) {
+            return false;
+        }
+        if (word[pos] == '.') {
+            // wildcard
+            for (int i=0; i<26; i++) {
+                if (dfs_search(at->child[i], word, pos + 1)) {
+                    return true;
+                }
+            }
+        } else {
+            return dfs_search(at->child[word[pos] - 'a'], word, pos + 1);
+        }
+        return false;
+    }
+public:
+    WordDictionary() {
+        // placeholder for '\0' string
+        root.count = 1;
+    }
+    // Adds a word into the data structure.
+    void addWord(string word) {
+        add(word);
+    }
+
+    // Returns if the word is in the data structure. A word could
+    // contain the dot character '.' to represent any one letter.
+    bool search(string word) {
+        return dfs_search(&root, word, 0);
+    }
+};
+
+// Your WordDictionary object will be instantiated and called as such:
+// WordDictionary wordDictionary;
+// wordDictionary.addWord("word");
+// wordDictionary.search("pattern");
